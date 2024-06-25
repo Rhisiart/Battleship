@@ -37,8 +37,7 @@ const (
 )
 
 type Command struct {
-	id        ID
-	recipient string
-	sender    string
-	body      []byte
+	id     ID
+	sender string
+	body   []byte
 }

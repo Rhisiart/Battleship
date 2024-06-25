@@ -6,14 +6,16 @@ import (
 	"fmt"
 	"io"
 	"net"
+
+	"github.com/Rhisiart/battleship/internal/matchmaking"
 )
 
 type Client struct {
+	*matchmaking.Player
 	conn     net.Conn
 	outbound chan<- Command
 	login    chan<- *Client
 	logout   chan<- *Client
-	username string
 }
 
 func NewClient(
@@ -75,7 +77,7 @@ func (c *Client) logIn(args []byte) error {
 		return fmt.Errorf("username cannot be blank")
 	}
 
-	c.username = string(u)
+	c.Player = matchmaking.NewPlayer(string(u))
 	c.login <- c
 
 	return nil
@@ -88,12 +90,15 @@ func (c *Client) logOut() error {
 }
 
 func (c *Client) join() {
-
+	c.outbound <- Command{
+		sender: c.Player.Username,
+		id:     JOIN,
+	}
 }
 
 func (c *Client) numberOfClients() {
 	c.outbound <- Command{
-		sender: c.username,
+		sender: c.Player.Username,
 		id:     CLIENTS,
 	}
 }
